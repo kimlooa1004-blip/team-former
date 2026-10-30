@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import os
 import threading
+import time
 from contextlib import contextmanager
 
 import psycopg2
@@ -24,6 +25,11 @@ from config import get_secret
 
 _SCHEMA_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "schema.sql")
 _schema_lock = threading.Lock()
+
+# 채점 때는 가상 학생마다 브라우저가 따로 열려 최대 16개 화면이 동시에 DB를 읽는다.
+# 연결을 그만큼 넉넉히 두고, 그래도 한꺼번에 몰리면 잠깐 기다렸다 다시 빌린다.
+_POOL_MAX = 20
+_POOL_WAIT_SEC = 5.0
 
 
 class DatabaseNotConfigured(RuntimeError):
@@ -43,7 +49,7 @@ def _get_pool() -> psycopg2.pool.ThreadedConnectionPool:
         url += ("&" if "?" in url else "?") + "sslmode=require"
     return psycopg2.pool.ThreadedConnectionPool(
         minconn=1,
-        maxconn=8,
+        maxconn=_POOL_MAX,
         dsn=url,
         connect_timeout=10,
         # 연결이 끊긴 것을 모르고 오래 매달리지 않게 한다
@@ -55,17 +61,34 @@ def _get_pool() -> psycopg2.pool.ThreadedConnectionPool:
     )
 
 
+def _getconn_waiting(pool):
+    """연결을 빌린다. 다 나가 있으면 잠깐 기다렸다 다시 해 본다.
+
+    psycopg2 의 묶음은 연결이 다 나가 있으면 기다리지 않고 바로 PoolError 를 낸다.
+    화면 하나가 연결을 쥐는 시간은 아주 짧으므로, 몰린 순간만 넘기면 곧 빌릴 수 있다.
+    그대로 두면 동시에 몰렸을 때 그 화면에만 "DB를 읽지 못했습니다"가 뜬다.
+    """
+    deadline = time.monotonic() + _POOL_WAIT_SEC
+    while True:
+        try:
+            return pool.getconn()
+        except psycopg2.pool.PoolError:
+            if time.monotonic() >= deadline:
+                raise
+            time.sleep(0.05)
+
+
 @contextmanager
 def _borrow():
     """묶음에서 연결을 빌린다. 끊어진 연결이면 버리고 새 것을 받는다."""
     pool = _get_pool()
-    conn = pool.getconn()
+    conn = _getconn_waiting(pool)
     broken = False
     try:
         if conn.closed:
             broken = True
             pool.putconn(conn, close=True)
-            conn = pool.getconn()
+            conn = _getconn_waiting(pool)
             broken = False
         yield conn
     except psycopg2.Error:
