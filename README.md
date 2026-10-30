@@ -6,8 +6,7 @@
 
 ## 1. 배포 주소
 
-<!-- TODO: Streamlit 배포가 끝나면 실제 주소로 바꾸세요 -->
-`https://________.streamlit.app`
+https://teamform-looa.streamlit.app/
 
 ## 2. PRD와 구현 계획의 위치
 
