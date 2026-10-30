@@ -1,0 +1,12 @@
+# 키가 들어 있는 파일은 절대 올리지 않는다 (공고 4.1절, 6.3절 7번)
+.env
+.env.*
+!.env.example
+.streamlit/secrets.toml
+
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.DS_Store
+*.zip
