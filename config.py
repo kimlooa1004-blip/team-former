@@ -40,9 +40,9 @@ def get_secret(name: str, default: str | None = None) -> str | None:
 # (openrouter/free)는 쓰지 않는다 — 다음 모델로 넘기는 처리를 직접 만든다.
 # Secrets 에 MODEL_1 / MODEL_2 / MODEL_3 을 넣으면 코드를 고치지 않고 바꿀 수 있다.
 DEFAULT_MODELS = (
-    "deepseek/deepseek-chat-v3-0324:free",
-    "meta-llama/llama-3.3-70b-instruct:free",
-    "mistralai/mistral-small-3.2-24b-instruct:free",
+    "nvidia/nemotron-3-ultra-550b-a55b:free",
+    "google/gemma-4-26b-a4b-it:free",
+    "thinkingmachines/inkling-small:free",
 )
 
 
