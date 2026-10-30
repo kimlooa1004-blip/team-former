@@ -80,26 +80,38 @@ AI 호출은 `tf_ai_logs` 테이블에 차수·모델·상태·걸린 시간으�
 
 ## 6. 클로드가 잘못된 추론이나 답변을 한 사례
 
-**사례: 로그인 단추를 `st.form_submit_button` 으로 만들면서 `key="login_submit"` 을 붙였다.**
+**사례: 클로드가 "`st.form_submit_button` 에는 `key` 매개변수가 없다"고 잘못 알려 주었다.**
 
-공고 2.7절 표에 로그인 단추가 "`st.button` 또는 `st.form_submit_button`"으로 적혀 있어,
-클로드는 폼이 입력 묶음 전송에 안전하다는 이유로 `st.form_submit_button("로그인",
-key="login_submit")` 로 코드를 썼다. 그러나 `st.form_submit_button` 에는 `key` 매개변수가
-없다. 그대로 두었다면 `TypeError` 로 앱이 뜨지 않았을 것이고, 설령 떴더라도 채점 프로그램이
-`login_submit` 을 찾지 못해 멈추고 5점이 깎였을 것이다(공고 6.3절 15번).
+로그인 단추를 무엇으로 만들지 정할 때, 클로드는 `st.form_submit_button` 에는 `key` 를
+붙일 수 없고 붙이면 `TypeError` 로 앱이 죽는다고 단언했다. 그래서 폼을 쓰지 않는 구조로
+가게 되었고, 그 설명을 그대로 믿고 `streamlit_app.py` 파일 맨 위와 README 에도
+"`key` 가 없다"고 적어 두었다.
 
-**알아챈 방법**: 코드를 쓰고 나서 Streamlit 공식 문서의 `st.form_submit_button` 함수
-서명을 확인했다. 매개변수는 `label, help, on_click, args, kwargs, type, disabled,
-use_container_width` 뿐이고 `key` 가 없다.
+**알아챈 방법**: 제출 전에 Streamlit 공식 문서의
+[`st.form_submit_button` API 참조](https://docs.streamlit.io/develop/api-reference/execution-flow/st.form_submit_button)
+를 직접 열어 함수 서명을 확인했다. 서명은 다음과 같았다(Version 1.66.0).
 
-**고친 방법**: 폼을 쓰지 않고 `st.text_input` 두 개와 `st.button(key="login_submit")` 으로
-바꾸었다. 폼을 못 쓰게 되어 생기는 문제(글자를 넣자마자 단추를 누르면 그 클릭이 화면을 다시
-그리는 사이에 묻힐 수 있음)는, 비밀번호 칸의 `on_change` 로도 로그인되게 해서 막았다.
-`streamlit_app.py` 의 `_login_on_change` 와 파일 맨 위 설명에 그 이유를 적어 두었다.
+```
+st.form_submit_button(label="Submit", help=None, on_click=None, args=None,
+                      kwargs=None, *, key=None, type="secondary", icon=None,
+                      icon_position="left", disabled=False,
+                      use_container_width=None, width="content",
+                      shortcut=None, wrap=None)
+```
 
-**근거**: `streamlit_app.py` 파일 맨 위 설명과 `_login_on_change` 함수의 주석에 이 판단과
-이유가 그대로 적혀 있다. Streamlit 공식 문서의 `st.form_submit_button` 함수 서명
-(`docs.streamlit.io` 의 API 참조)에 `key` 가 없다는 것도 함께 확인했다.
+`key=None` 이 분명히 들어 있다. 클로드의 말과 정반대였다.
+근거 화면 → [`img/form-submit-has-key.png`](img/form-submit-has-key.png)
+
+**고친 방법**: 코드는 바꾸지 않았다. 지금 쓰는 `st.button("로그인", key="login_submit")`
+은 공고 2.7절 표가 허용하는 두 가지 중 하나라 그대로 두어도 채점에 문제가 없고,
+비밀번호 칸의 `on_change` 로도 로그인이 끝나게 해 두어 글자를 넣자마자 누른 클릭이
+묻히는 문제도 이미 막혀 있기 때문이다. 대신 **사실과 다른 설명을 지웠다.**
+`streamlit_app.py` 맨 위 주석에서 "`key` 매개변수가 없어 붙일 수 없다"는 문장을
+빼고, 실제 이유(`on_change` 를 쓰기 쉬움)와 잘못 알았던 경위를 적었다.
+
+**배운 것**: 클로드가 함수 서명처럼 확인 가능한 사실을 단언할 때도 그대로 믿으면 안 되고,
+공식 문서에서 직접 확인해야 한다. 이 사례는 앱이 멈추는 종류의 잘못은 아니었지만,
+확인하지 않았다면 제출물에 사실이 아닌 설명을 그대로 남길 뻔했다.
 
 ## 7. 본인이 제출한 앱에서 발견한 문제점이나 개선 필요 사항
 

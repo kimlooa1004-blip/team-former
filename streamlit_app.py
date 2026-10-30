@@ -12,8 +12,11 @@
   refresh
 
 로그인 단추는 st.form_submit_button 이 아니라 st.button 으로 만들었다.
-공고 표에는 둘 다 적혀 있으나, st.form_submit_button 에는 key 매개변수가 없어
-login_submit 을 붙일 수 없기 때문이다(붙이면 TypeError 로 앱이 죽는다).
+공고 2.7절 표에는 둘 다 쓸 수 있다고 적혀 있고, 어느 쪽이든 key 를 붙일 수 있다.
+st.button 을 고른 이유는 비밀번호 칸의 on_change 로도 로그인을 끝낼 수 있어,
+글자를 넣자마자 단추를 누른 클릭이 묻히는 일을 막기 쉬웠기 때문이다.
+(처음에는 "st.form_submit_button 에는 key 가 없다"고 알고 썼으나 사실이 아니었다.
+ 공식 문서 확인 결과 key 매개변수가 있다. 자세한 경위는 README.md 6항에 적었다.)
 """
 
 from __future__ import annotations
