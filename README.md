@@ -28,15 +28,17 @@ https://teamform-looa.streamlit.app/
 
 ## 4. 쓴 모델 3개 (공고 4.3절)
 
-<!-- TODO: 오픈라우터에서 실제로 쓰기로 한 모델 이름으로 바꾸고, 셋 다 응답하는지 확인하세요 -->
 
-1. 1차 `deepseek/deepseek-chat-v3-0324:free`
-2. 2차 `meta-llama/llama-3.3-70b-instruct:free`
-3. 3차 `mistralai/mistral-small-3.2-24b-instruct:free`
+어려움 연습용 시나리오의 AI 배정 실행 화면에서 확인한 호출 순서이다.
 
-모델 이름은 `config.py` 의 `DEFAULT_MODELS` 에 있고, Streamlit Secrets 에
-`MODEL_1` / `MODEL_2` / `MODEL_3` 을 넣으면 코드를 고치지 않고 바꿀 수 있다.
-무료 모델로 자동 연결하는 라우터(`openrouter/free`)는 쓰지 않는다.
+1. 1차 `nvidia/nemotron-3-ultra-550b-a55b:free`
+2. 2차 `google/gemma-4-26b-a4b-it:free`
+3. 3차 `thinkingmachines/inkling-small:free`
+
+세 모델이 모두 오류로 끝난 실행에서는 앱이 자체 배정으로 넘어갔다.
+실행 근거: [AI 모델 오류 및 자체 배정 화면](스크린샷%202026-10-30%20150856.png)
+
+
 
 
 
