@@ -1,0 +1,25 @@
+# Supabase 무료 프로젝트가 일시정지되지 않도록 매일 DB 에 질의를 보낸다.
+# 공고 3장 "DB(Supabase)가 일시정지되지 않게"의 어려운 해결 (외부 예약 서비스).
+#
+# 쓰려면 저장소 Settings > Secrets and variables > Actions 에서
+# DATABASE_URL 이라는 이름으로 Supabase 주소를 한 번 등록하면 된다.
+name: keep-supabase-awake
+
+on:
+  schedule:
+    - cron: "23 1 * * *"   # 매일 UTC 01:23 (한국 시각 오전 10:23)
+  workflow_dispatch:        # 손으로도 돌려 볼 수 있다
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install "psycopg2-binary>=2.9.9"
+      - name: DB 에 질의 보내기
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: python keepalive.py
